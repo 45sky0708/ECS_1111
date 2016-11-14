@@ -1,0 +1,10 @@
+﻿@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+            window.onload = function () {
+                bootbox.alert("無權限使用，返回登入畫面", function (result) {
+                    window.location.href = "/Home/Login";
+                });
+            };
+    </script>
+}

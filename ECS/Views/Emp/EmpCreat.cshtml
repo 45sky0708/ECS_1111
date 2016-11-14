@@ -1,0 +1,164 @@
+﻿@model  ECS.Models.ECSEntities
+
+@*表單驗證*@
+<script src="~/Scripts/jquery.validate.js"></script>
+
+<br />
+@*<h2>新增員工</h2>
+<br />
+<br />*@
+
+<form class="form-horizontal" id="form" role="form">
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">員工編號</label>
+        <div class="col-sm-10">
+            <input type="text" id="EmpID" name="EmpID" class="form-control" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">密碼</label>
+        <div class="col-sm-10">
+            <input type="password" id="EmpPwd" name="EmpPwd" class="form-control" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">員工姓名</label>
+        <div class="col-sm-10">
+            <input type="text" id="EmpName" name="EmpName" class="form-control" required>
+        </div>
+    </div>
+@if (Session["SessionRole"] != null)
+{
+    string role = Session["SessionRole"].ToString();
+    string empdept = Session["SessionEmpDept"].ToString();
+    if (role == "Admin")
+    {
+        <div class="form-group">
+            <label class="col-sm-2 control-label">員工部門</label>
+            <div class="col-sm-10">
+                <select type="button" id="EmpDept" name="EmpDept" class="form-control">
+                    <option value=""></option>
+                    <option value="數位資訊部">數位資訊部</option>
+                    <option value="投資資訊部">投資資訊部</option>
+                    <option value="壽險資訊部">壽險資訊部</option>
+                    <option value="資訊系統部">資訊系統部</option>
+                    <option value="資訊規劃部">資訊規劃部</option>
+                </select>
+            </div>
+        </div>
+    }
+    if (role == "Manage")
+    {
+        <div class="form-group">
+            <label class="col-sm-2 control-label">員工部門</label>
+            <div class="col-sm-10">
+                <select type="button" id="EmpDept" name="EmpDept" class="form-control">
+
+                    <option value="@empdept" selected="selected">@empdept</option>
+                </select>
+            </div>
+        </div>
+    }
+    <div class="form-group">
+        <label class="col-sm-2 control-label">員工信箱</label>
+        <div class="col-sm-10">
+            <input type="text" id="Email" name="Email" class="form-control" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">員工卡號</label>
+        <div class="col-sm-10">
+            <input type="text" id="EmpSN" name="EmpSN" class="form-control" required autofocus>
+        </div>
+    </div>
+    if (role == "Admin")
+    {
+        <div class="form-group">
+            <label class="col-sm-2 control-label">角色</label>
+            <div class="col-sm-10">
+                <select type="button" id="Role" name="Role" class="form-control">
+                    <option value=""></option>
+                    <option value="Admin">Admin</option>
+                    <option value="Manage">Manage</option>
+                    <option value="User">User</option>
+                </select>
+            </div>
+        </div>
+    }
+    if (role == "Manage")
+    {
+        <div class="form-group">
+            <label class="col-sm-2 control-label">角色</label>
+            <div class="col-sm-10">
+                <select type="button" id="Role" name="Role" class="form-control">
+                    <option value=""></option>
+                    <option value="Manage">Manage</option>
+                    <option value="User">User</option>
+                </select>
+            </div>
+        </div>
+    }
+
+}
+    @*按鈕*@
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="button" id="btnSave" value="確認新增" class="btn btn-info" />
+        </div>
+    </div>
+</form>
+
+@*表單驗證*@
+<script>
+    $('#form').validate();
+</script>
+
+
+
+
+
+@*AJAX*@
+<script>
+    $(function () {
+
+        $('#btnSave').click(function () {
+            //不允許NULL
+
+            if ($('#form').valid()) {
+
+            }
+            else
+            {
+                bootbox.alert('新增失敗');
+                return;
+            }
+
+            var empObj = {
+                EmpID: $('#EmpID').val(),  //JSON物件
+                EmpPwd: $('#EmpPwd').val(),
+                EmpName: $('#EmpName').val(),
+                EmpDept: $('#EmpDept').val(),
+                Email: $('#Email').val(),
+                EmpSN: $('#EmpSN').val(),
+                Role: $('#Role').val()
+            };
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify(empObj),
+                url: '@Url.Action("EmpCreat")',
+                dataType: 'JSON',
+                contentType: "application/json",
+                success: function (r) {
+                    bootbox.alert('新增成功', function (result) {
+                        window.location.href = "/Emp/EmpManage";
+                    });
+                },
+                error: function (response) {
+                    bootbox.alert(response.responseText);
+                }
+            });
+        });
+    });
+
+</script>

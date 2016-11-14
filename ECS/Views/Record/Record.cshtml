@@ -1,0 +1,149 @@
+﻿@*@model ECS.Models.FormViewModel*@
+@*分頁*@
+@model   PagedList.IPagedList<ECS.Models.ExportDataViewModel>
+@using PagedList.Mvc;
+
+<script>
+    $(function () {
+        $("#datetimesd").datepicker({ dateFormat: 'yy/mm/dd' });
+        $("#datetimeed").datepicker({ dateFormat: 'yy/mm/dd' });
+    });
+</script>
+<br />
+<h2>借用歷史紀錄(當月)</h2>
+<br />
+<br />
+
+<form method="post" id="RecordList">
+    <div>
+        <label>員編卡號:</label>
+        <input type="text" id="empsn" name="empsn" class="form-inline" style="width:10%" value="@Session["Searchnempsn"]">
+        <label>部門:</label>
+        @if (Session["SessionRole"] != null)
+        {
+            string role = Session["SessionRole"].ToString();
+            string empdept = Session["SessionEmpDept"].ToString();
+            if (role == "Admin")
+            {
+                <select type="button" id="empdept" name="empdept" class="btn btn-default dropdown-toggle" value="@Session["Searchempdept"]">
+                    <option value=""></option>
+                    <option value="數位資訊部">數位資訊部</option>
+                    <option value="投資資訊部">投資資訊部</option>
+                    <option value="壽險資訊部">壽險資訊部</option>
+                    <option value="資訊系統部">資訊系統部</option>
+                    <option value="資訊規劃部">資訊規劃部</option>
+                </select>
+            }
+            if (role == "Manage")
+            {
+                <select type="button" id="empdept" name="empdept" class="btn btn-default dropdown-toggle">
+                    <option value="@empdept" selected="selected">@empdept</option>
+                </select>
+            }
+        }
+        <label>卡片編號:</label>
+        <input type="text" id="cardid" name="cardid" class="form-inline" style="width:10%" value="@Session["Searchcardid"]">
+        <label>日期:</label>
+        <input type="text" id="datetimesd" name="datetimesd" class="form-inline" style="width:10%" value="@Session["Searchdatetimesd"]">
+        <label>~</label>
+        <input type="text" id="datetimeed" name="datetimeed" class="form-inline" style="width:10%" value="@Session["Searchdatetimeed"]">
+        <input type="submit" id="btnSearch" value="查詢" class="btn btn-info">
+    </div>
+    <br />
+
+    @if (ViewBag.Message == true)
+    {
+        <table class="table table-bordered table-hover">
+            <tr class="success">
+                <th>紀錄編號</th>
+                <th>員工編號</th>
+                <th>員工姓名</th>
+                <th>員工部門</th>
+                <th>卡片編號</th>
+                <th>卡片部門</th>
+                <th>借用時間</th>
+                <th>歸還時間</th>
+                <th>借用狀態</th>
+                <th>借用天數</th>
+                @*<th>卡片餘額</th>*@
+                <th>總花費</th>
+            </tr>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.RecordNumber</td>
+                    <td>@item.EmpID</td>
+                    <td>@item.EmpName</td>
+                    <td>@item.EmpDept</td>
+                    <td>@item.CardID</td>
+                    <td>@item.CardDept</td>
+                    <td>@item.TimeLendDataFormat</td>
+                    <td>@item.TimeReturnDataFormat</td>
+                    <td>@item.RecordState</td>
+                    <td>@item.UseDay 天</td>
+                    @*<td>@item.CardAmount 元</td>*@
+                    <td>@item.TotalSpent 元</td>
+                </tr>
+            }
+
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-danger">No Data.</div>
+    }
+    @*輸出EXCEL*@
+    @*<input type="button" class="btn btn-info" id="btnExport" value="輸出EXCEL" onclick="location.href='@Url.Action("ExportData", "Record")'" />*@
+</form>
+
+@*輸出EXCEL*@
+    <button class="btn btn-primary" id="ButtonExport" name="ButtonExport">
+        輸出EXCEL
+    </button>
+
+
+@*分頁*@
+<div class="pager">
+    @Html.PagedListPager(Model, page => Url.Action("Record", new
+{
+    page = page,
+    datetimesd = Session["Searchdatetimesd"],
+    datetimeed = Session["Searchdatetimeed"],
+    empid = Session["Searchempid"],
+    empsn = Session["Searchempsn"],
+    empdept = Session["Searchempdept"],
+    cardid = Session["Searchcardid"]
+}),
+    new PagedListRenderOptions
+    {
+        //DisplayLinkToIndividualPages=false,
+        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+        DisplayLinkToLastPage = PagedListDisplayMode.Always,
+        DisplayLinkToNextPage = PagedListDisplayMode.Always,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+        //DisplayPageCountAndCurrentLocation = true,
+        DisplayItemSliceAndTotal = true,
+        //PageCountAndCurrentLocationFormat ="第{0}頁 / 共{1}頁",
+        ItemSliceAndTotalFormat = "顯示項目： {0} ~ {1} / 共{2}項"
+    })
+</div>
+
+@section scripts
+{
+    <script src="~/Scripts/bootbox.js"></script>
+    <script src="~/Scripts/jquery.form.js"></script>
+    <script src="~/Scripts/project.js"></script>
+    <script src="~/Scripts/project.extends.js"></script>
+    <script src="~/Scripts/project.ZipCode.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var actionUrls = {
+                Upload: '@Url.Action("Upload", "Record")',
+                Import: '@Url.Action("Import", "Record")',
+                HasData: '@Url.Action("HasData", "Record")',
+                ExportData: '@Url.Action("Export", "Record")'
+            };
+            project.ZipCode.Initialize(actionUrls);
+        });
+    </script>
+}

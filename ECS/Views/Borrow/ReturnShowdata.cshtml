@@ -1,0 +1,70 @@
+﻿@model  ECS.Models.FormViewModel
+
+<div id="dialog-Confirm" title="Edit"></div>
+
+@if (Model.IsSuccess)
+{
+    <table id="table01" class="table table-bordered table-hover">
+        <tr class="success">
+            <th>功能</th>
+            <th>紀錄編號</th>
+            <th>卡片編號</th>
+            <th>卡片別名</th>
+            <th>員工編號</th>
+            <th>員工部門</th>
+            <th>員工姓名</th>
+            <th>借出時間</th>
+            <th>借用天數</th>
+        </tr>
+        @foreach (var item in Model.ECSdata) //C#
+        {
+            <tr>
+                <td align="center">
+                    @Html.ActionLink("確認歸還", "ReturnConfirm", "Borrow", new { recordnumber = item.RecordNumber }, new { @class = "ConfirmDialog btn btn-primary" })
+                </td>
+                <td>@item.RecordNumber</td>
+                <td>@item.CardID</td>
+                <td>@item.CardName</td>
+                <td>@item.EmpID</td>
+                <td>@item.EmpDept </td>
+                <td>@item.EmpName</td>
+                <td>@item.TimeLendDataFormat</td>
+                <td>@item.UseDay</td>
+            </tr>
+        }
+
+    </table>
+}
+else
+{
+    <div class="alert alert-danger">@Model.Msg</div>
+}
+
+<script>
+        $(document).ready(function () {
+
+            $(".ConfirmDialog").on("click", function (e) {
+                var url = $(this).attr('href');
+                $("#dialog-Confirm").dialog({
+                    title: '歸還確認',
+                    autoOpen: false,
+                    resizable: false,
+                    height: 500,
+                    width: 650,
+                    show: { effect: 'drop', direction: "up" },
+                    modal: true,
+                    draggable: true,
+                    open: function (event, ui) {
+                        $(this).load(url);
+
+                    },
+                    close: function (event, ui) {
+                        $(this).dialog('close');
+                    }
+                });
+
+                $("#dialog-Confirm").dialog('open');
+                return false;
+            });
+        });
+</script>

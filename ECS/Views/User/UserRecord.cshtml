@@ -1,0 +1,119 @@
+﻿@model  ECS.Models.FormViewModel
+
+<script>
+    $(function () {
+        $("#datetimesd").datepicker({ dateFormat: 'yy/mm/dd' });
+        $("#datetimeed").datepicker({ dateFormat: 'yy/mm/dd' });
+    });
+</script>
+
+<br />
+<h2>借用紀錄</h2>
+<br />
+<br />
+
+<div id="dialog-edit" title="Edit"></div>
+
+<form method="post">
+    <div>
+        <label>日期:</label>
+        <input type="text" id="datetimesd" name="datetimesd" class="form-inline" style="width:10%" />
+        <label>~</label>
+        <input type="text" id="datetimeed" name="datetimeed" class="form-inline" style="width:10%" />
+        <input type="submit" id="btnSearch" value="選擇區間資料" class="btn btn-info" />
+    </div>
+    <br />
+    @if (Model.IsSuccess)
+    {
+        string EmpState = Session["SessionEmpState"].ToString();
+        <table class="table table-bordered">
+            <tr class="success table-bordered table-hover">
+                <th>功能</th>
+                <th>紀錄編號</th>
+                <th>卡片編號</th>
+                <th>卡片別名</th>
+                <th>借用時間</th>
+                <th>歸還時間</th>
+                <th>借用狀態</th>   @*目前使用卡片狀態，可是預約時不會選擇卡片，所以不會出現卡片狀態*@
+
+            </tr>
+            @foreach (var item in Model.ECSdata) //C#
+            {
+                <tr>
+                    <td align="center">
+                        @if (item.RecordState == "已預約")
+                        {
+                            @Html.ActionLink("修改", "UserEdit", "User", new { recordnumber = item.RecordNumber }, new { @class = "editDialog btn btn-warning" }) <a>&nbsp;</a>
+                            @Html.ActionLink("取消", "UserCancel", "User", new { recordnumber = @item.RecordNumber }, new { @class = "cancel btn btn-danger" })
+                        }
+                        else if (item.RecordState == "已借用")
+                        {
+                            @Html.ActionLink("續借", "UserRenew", "User", new { recordnumber = @item.RecordNumber }, new { @class = "btn btn-success", onclick = "return confirm('系統自動延期5天');" })
+                        }
+                        else
+                        {
+
+                        }
+                    </td>
+                    <td>@item.RecordNumber</td>
+                    <td>@item.CardID</td>
+                    <td>@item.CardName</td>
+                    <td>@item.TimeLendDataFormat</td>
+                    <td>@item.TimeReturnDataFormat</td>
+                    <td>@item.RecordState</td>
+
+                </tr>
+            }
+
+
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-danger">@Model.Msg</div>
+    }
+</form>
+
+
+@*Dialog*@
+<script>
+
+
+    $(document).ready(function () {
+
+        $(".cancel").on("click", function (e) {
+            var link = $(this).attr("href"); // "get" the intended link in a var
+            e.preventDefault();
+            bootbox.confirm("確定要取消?", function (result) {
+                if (result) {
+                    location.href = link; // if result, "set" the document location 
+                }
+            });
+
+        });
+
+        $(".editDialog").on("click", function (e) {
+            var url = $(this).attr('href');
+            $("#dialog-edit").dialog({
+                title: '預約資料修改',
+                autoOpen: false,
+                resizable: false,
+                height: 450,
+                width: 650,
+                show: { effect: 'drop', direction: "up" },
+                modal: true,
+                draggable: true,
+                open: function (event, ui) {
+                    $(this).load(url);
+
+                },
+                close: function (event, ui) {
+                    $(this).dialog('close');
+                }
+            });
+
+            $("#dialog-edit").dialog('open');
+            return false;
+        });
+    });
+</script>

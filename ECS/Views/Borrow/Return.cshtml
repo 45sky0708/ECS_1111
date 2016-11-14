@@ -1,0 +1,70 @@
+﻿@model  ECS.Models.FormViewModel
+
+<br />
+<h2>卡片歸還</h2>
+<br />
+<br />
+
+
+<form method="post">
+    <div>        
+        <label>卡片編號:</label>
+        <input type="text" id="cardid" name="cardid" class="form-inline" style="width:10%" autofocus/>
+        <input type="button" id="btnSearch" value="查詢" class="btn btn-info" />
+    </div>
+    <br />
+    <div id="ReturnShowdata"></div>
+</form>
+
+<script>
+    $(function () {
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("ReturnShowdata")',
+            dataType: 'html',
+            success: function (r) {
+                $('#ReturnShowdata').html(r);
+            }
+        });
+
+
+        $('#btnSearch').click(function () {            
+            $.ajax({
+                type: 'GET',
+                data: { cardid: $('#cardid').val() },
+                url: '@Url.Action("ReturnShowdata")',
+                dataType: 'html',
+                success: function (r) {
+                    $('#ReturnShowdata').html(r);
+                }
+            });
+        });
+
+    });
+</script>
+
+
+@*輸入cardID，連動欄位帶出員工資訊*@
+<script>
+    var hnd;
+    $('#cardid').keyup(function () {
+        //取消前一次預定的查詢
+        window.clearTimeout(hnd);
+        //延遲一秒後才查詢，若這一段內又輸入其他字元
+        //則此一預約執行會被上一行程式取消
+        var value = $(this).val();
+        hnd = window.setTimeout(function () {
+        $.ajax({
+            type: 'GET',
+            data: { cardid: $('#cardid').val() },
+            url: '@Url.Action("ReturnShowdata")',
+            dataType: 'HTML',
+            success: function (r) {                
+                $('#ReturnShowdata').html(r);
+            }
+        });
+        }, 1000);
+    });
+</script>
+

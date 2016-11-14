@@ -1,0 +1,103 @@
+﻿@model  List<ECS.Models.ECSViewModel>
+<br />
+@*<h2>預約資料修改</h2>
+<br />*@
+@*<br />*@
+
+
+
+@*表單驗證*@
+<script src="~/Scripts/jquery.validate.js"></script>
+
+@foreach (var item in Model) //C#
+{
+    <form class="form-horizontal" id="form" role="form">
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">紀錄編號</label>
+            <div class="col-sm-10">
+                <input type="text" id="RecordNumber" name="RecordNumber" class="form-control" value="@item.RecordNumber" disabled="disabled">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">員工編號</label>
+            <div class="col-sm-10">
+                <input type="text" id="EmpID" name="EmpID" class="form-control" value="@item.EmpID" disabled="disabled">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">員工姓名</label>
+            <div class="col-sm-10">
+                <input type="text" id="EmpName" name="EmpName" class="form-control" value="@item.EmpName" disabled="disabled">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">借用時間</label>
+            <div class="col-sm-10">
+                <input type="text" id="TimeLend" name="TimeLend" class="form-control" value="@item.TimeLendDataFormat">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">借用天數</label>
+            <div class="col-sm-10">
+                <input type="text" id="UseDay" name="UseDay" class="form-control" value="@item.UseDay">
+            </div>
+        </div>
+        @*按鈕*@
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" id="btnSave" value="修改確認" class="btn btn-info" />
+            </div>
+        </div>
+    </form>
+}
+
+@*表單驗證*@
+<script>
+    $('#form').validate();
+</script>
+
+
+@*AJAX*@
+<script>
+    $(function () {
+        $("#TimeLend").mouseenter(function (e) {
+            $("#TimeLend").datepicker({ dateFormat: 'yy/mm/dd' });
+        });
+
+        $('#btnSave').click(function () {
+
+            if ($('#form').valid()) {
+
+            }
+            else {
+                bootbox.alert('修改失敗');
+                return;
+            }
+
+            var empObj = {
+                RecordNumber: $('#RecordNumber').val(),
+                EmpID: $('#EmpID').val(),  //JSON物件
+                EmpName: $('#EmpName').val(),
+                TimeLend: $('#TimeLend').val(),
+                UseDay: $('#UseDay').val(),
+            };
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify(empObj),
+                url: '@Url.Action("UserEdit")',
+                dataType: 'JSON',
+                contentType: "application/json",
+                success: function (r) {
+                    bootbox.alert('修改成功', function (result) {
+                        window.location.href = "/User/UserRecord";
+                    });
+                },
+                error: function (response) {
+                    bootbox.alert(response.responseText);
+                }
+            });
+        });
+    });
+
+</script>

@@ -1,0 +1,102 @@
+﻿@model  ECS.Models.EmpData
+
+<br />
+<h2>預約借用</h2>
+<br />
+<br />
+
+@*datepicker*@
+<script>
+    $(function () {
+        $("#TimeLend").datepicker();
+        $("#TimeLend").datepicker('option', { dateFormat: 'yy/mm/dd' });
+        $('#TimeLend').datepicker('setDate', 'today');
+    });
+</script>
+
+
+
+<form class="form-horizontal" id="form" role="form">
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">員工編號</label>
+        <div class="col-sm-10">
+            <input type="text" id="EmpID" name="EmpID" class="form-control" value="@Model.EmpID" disabled="disabled">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">員工姓名</label>
+        <div class="col-sm-10">
+            <input type="text" id="EmpName" name="EmpName" class="form-control" value="@Model.EmpName" disabled="disabled">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">借用時間</label>
+        <div class="col-sm-10">
+            <input type="text" id="TimeLend" name="TimeLend" class="form-control">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">借用天數</label>
+        <div class="col-sm-10">
+            <input type="text" id="UseDay" name="UseDay" class="form-control" value="2">
+        </div>
+    </div>
+    @*借用狀態欄位，隱藏不顯示*@
+    <input type="hidden" id="EmpState" name="EmpState" class="form-control" value="@Model.EmpState">
+    @*按鈕*@
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="button" id="btnSave" value="預約借用" class="btn btn-info" />
+        </div>
+    </div>
+</form>
+
+
+@*AJAX*@
+<script>
+    $(function () {
+
+        $('#btnSave').click(function () {
+
+            if ($('#EmpState').val() == '已預約' || $('#EmpState').val() == '已借用') {
+                bootbox.alert("尚有未歸還卡片，請先歸還再借用");
+                return;
+            }
+            var empObj = {
+                EmpID: $('#EmpID').val(),  //JSON物件
+                EmpName: $('#EmpName').val(),
+                TimeLend: $('#TimeLend').val(),
+                UseDay: $('#UseDay').val(),
+            };
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify(empObj),
+                url: '@Url.Action("UserReserve")',
+                dataType: 'JSON',
+                contentType: "application/json",
+                success: function (r) {
+                    bootbox.alert("預約成功", function (result) {
+                        window.location.href = "/User/UserRecord";
+                    });
+
+                },
+                error: function (response) {
+                    bootbox.alert(response.responseText);
+                }
+            });
+        });
+    });
+
+</script>
+
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+        window.onload = function () {
+            bootbox.alert("無權限使用，返回登入畫面", function (result) {
+                window.location.href = "/Home/Login";
+            });            
+        };
+    </script>
+}

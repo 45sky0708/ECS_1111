@@ -1,0 +1,190 @@
+﻿@*@model  ECS.Models.FormViewModel*@
+@*分頁*@
+@model   PagedList.IPagedList<ECS.Models.ECSViewModel>
+@using PagedList.Mvc;
+
+<br />
+<h2>卡片管理</h2>
+<br />
+<br />
+
+<div id="dialog-creat" title="Creat"></div>
+<div id="dialog-edit" title="Edit"></div>
+<div id="dialog-gift" title="gift"></div>
+
+<form method="post">
+    <div>
+        <label>卡片編號:</label>
+        <input type="text" id="cardid" name="cardid" class="form-inline" style="width:10%" autofocus/>
+        <label>部門:</label>
+
+        @if (Session["SessionRole"] != null)
+        {
+            string role = Session["SessionRole"].ToString();
+            string empdept = Session["SessionEmpDept"].ToString();
+            if (role == "Admin")
+            {
+                <select type="button" id="empdept" name="empdept" class="btn btn-default dropdown-toggle">
+                    <option value=""></option>
+                    <option value="數位資訊部">數位資訊部</option>
+                    <option value="投資資訊部">投資資訊部</option>
+                    <option value="壽險資訊部">壽險資訊部</option>
+                    <option value="資訊系統部">資訊系統部</option>
+                    <option value="資訊規劃部">資訊規劃部</option>
+                </select>
+            }
+            if (role == "Manage")
+            {
+                <select type="button" id="empdept" name="empdept" class="btn btn-default dropdown-toggle">
+                    <option value="@empdept" selected="selected">@empdept</option>
+                </select>
+            }
+        }
+        <input type="submit" id="btnSearch" value="查詢" class="btn btn-info" />
+        <a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</a>    @*&nbsp 空格符號*@
+        <a href='@Url.Action("CardCreat")' class="creatDialog btn btn-primary">新增卡片</a> &nbsp
+        <a href='@Url.Action("CardGift")' class="giftDialog btn btn-primary">儲值</a>
+    </div>
+    <br />
+    @if (ViewBag.Message == true)
+    {
+        <table class="table table-bordered table-hover">
+            <tr class="success">
+                <th>功能</th>
+                <th>卡片編號</th>
+                <th>卡片部門</th>
+                <th>卡片別名</th>
+                <th>卡片狀態</th>
+                <th>餘額</th>
+            </tr>
+            @foreach (var item in Model) //C#
+            {
+                <tr>
+                    <td align="center" width="200" >
+                    @Html.ActionLink("修改", "CardEdit", "Card", new { cardid = item.CardID }, new { @class = "editDialog btn btn-warning" }) &nbsp
+                    @Html.ActionLink("刪除", "CardDelete", "Card", new { cardid = @item.CardID }, new { @class = "delete btn btn-danger" })
+                    </td>
+                    <td>@item.CardID</td>
+                    <td>@item.CardDept </td>
+                    <td>@item.CardName</td>
+                    <td>@item.CardState</td>
+                    <td>@item.CardAmount</td>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-danger">No Data.</div>
+    }
+</form>
+
+@*分頁*@
+<div class="pager">
+    @Html.PagedListPager(Model, page => Url.Action("CardManage", new
+{
+    page = page,
+    cardid = Session["Searchcardid"],
+    empdept = Session["Searchempdept"]
+}),
+    new PagedListRenderOptions
+    {
+        //DisplayLinkToIndividualPages=false,
+        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+        DisplayLinkToLastPage = PagedListDisplayMode.Always,
+        DisplayLinkToNextPage = PagedListDisplayMode.Always,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+        //DisplayPageCountAndCurrentLocation = true,
+        DisplayItemSliceAndTotal = true,
+        //PageCountAndCurrentLocationFormat ="第{0}頁 / 共{1}頁",
+        ItemSliceAndTotalFormat = "顯示項目： {0} ~ {1} / 共{2}項"
+    })
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $(".delete").on("click", function (e) {
+            var link = $(this).attr("href"); // "get" the intended link in a var
+            e.preventDefault();
+            bootbox.confirm("確定要刪除?", function (result) {
+                if (result) {
+                    location.href = link; // if result, "set" the document location 
+                }
+            });
+
+        });
+
+        $(".editDialog").on("click", function (e) {
+            var url = $(this).attr('href');
+            $("#dialog-edit").dialog({
+                title: '卡片資料修改',
+                autoOpen: false,
+                resizable: false,
+                height: 420,
+                width: 700,
+                show: { effect: 'drop', direction: "up" },
+                modal: true,
+                draggable: true,
+                open: function (event, ui) {
+                    $(this).load(url);
+
+                },
+                close: function (event, ui) {
+                    $(this).dialog('close');
+                }
+            });
+
+            $("#dialog-edit").dialog('open');
+            return false;
+        });
+
+        $(".creatDialog").on("click", function (e) {
+            var url = $(this).attr('href');
+            $("#dialog-creat").dialog({
+                title: '新增卡片',
+                autoOpen: false,
+                resizable: false,
+                height: 420,
+                width: 700,
+                show: { effect: 'drop', direction: "up" },
+                modal: true,
+                draggable: true,
+                open: function (event, ui) {
+                    $(this).load(url);
+
+                },
+                close: function (event, ui) {
+                    $(this).dialog('close');
+                }
+            });
+
+            $("#dialog-creat").dialog('open');
+            return false;
+        });
+
+        $(".giftDialog").on("click", function (e) {
+            var url = $(this).attr('href');
+            $("#dialog-gift").dialog({
+                title: '儲值',
+                autoOpen: false,
+                resizable: false,
+                height: 420,
+                width: 700,
+                show: { effect: 'drop', direction: "up" },
+                modal: true,
+                draggable: true,
+                open: function (event, ui) {
+                    $(this).load(url);
+
+                },
+                close: function (event, ui) {
+                    $(this).dialog('close');
+                }
+            });
+
+            $("#dialog-gift").dialog('open');
+            return false;
+        });
+    });
+</script>

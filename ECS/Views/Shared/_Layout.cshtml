@@ -1,0 +1,65 @@
+﻿@*<!DOCTYPE html>*@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - 我的 ASP.NET 應用程式</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+    @*<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>*@
+    @*datepicker*@
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <script src="~/Scripts/bootbox.js"></script>
+    <script src="~/Scripts/jquery-1.12.4.js"></script>
+    <script src="~/Scripts/jquery-ui-1.12.1.js"></script>
+    <link href="~/Content/PagedList.css" rel="stylesheet" />
+    
+    
+</head>
+<body id="image">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header navbar-inverse">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("悠遊卡系統", "Reserve", "Borrow", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">                
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">借還管理<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="~/Borrow/Reserve">借還管理</a></li>
+                            <li><a href="~/Borrow/BorrowCreat">現場借用</a></li>
+                            <li><a href="~/Borrow/Return">歸還畫面</a></li>
+                        </ul>
+                    </li>
+                    <li>@Html.ActionLink("卡片管理", "CardManage", "Card")</li>
+                    <li>@Html.ActionLink("員工管理", "EmpManage", "Emp")</li>
+                    <li>@Html.ActionLink("借用紀錄", "Record", "Record")</li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li>@Html.ActionLink("Hello " + Session["SessionEmpName"] + " !", "Reserve", "Borrow")</li>
+                    <li>@Html.ActionLink("登出", "Logout", "Home")</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - 悠遊卡系統</p>
+        </footer>
+    </div>
+
+</body>
+</html>

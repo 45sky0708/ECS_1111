@@ -1,0 +1,187 @@
+﻿@model  ECS.Models.ECSViewModel
+
+@*表單驗證*@
+<script src="~/Scripts/jquery.validate.js"></script>
+
+<script>
+    $(function () {
+        $("#TimeLend").datepicker({ dateFormat: 'yy/mm/dd' });
+        //$("#TimeLend").datepicker();
+        //$("#TimeLend").datepicker('option', { dateFormat: 'yy/mm/dd' });
+        //$('#TimeLend').datepicker('setDate', 'today');
+    });
+</script>
+
+<br />
+<h2>現場借用</h2>
+<br />
+<br />
+
+
+<form class="form-horizontal" id="form" role="form">
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">員工卡號</label>
+        <div class="col-sm-10">
+            <input type="text" id="empsn" name="empsn" class="form-control" autofocus>
+            @*<input type="button" id="btnSearch" value="查詢" class="btn btn-info" />*@
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">員工編號</label>
+        <div class="col-sm-10">
+            <input type="text" id="EmpID" name="EmpID" class="form-control" value="@Model.EmpID">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">員工姓名</label>
+        <div class="col-sm-10">
+            @*<input type="text" id="EmpName" name="EmpName" class="form-control required maxlength" value="@Model.EmpName">*@
+            <input type="text" id="EmpName" name="EmpName" class="form-control" value="@Model.EmpName">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">借出時間</label>
+        <div class="col-sm-10">
+            <input type="text" id="TimeLend" name="TimeLend" class="form-control" value="@Model.TimeLendDataFormat" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">卡片編號</label>
+        <div class="col-sm-10">
+            <input type="text" id="CardID" name="CardID" class="form-control" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">天數</label>
+        <div class="col-sm-10">
+            <input type="text" id="UseDay" name="UseDay" class="form-control" value="2" required>
+        </div>
+    </div>
+    @*按鈕*@
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="button" id="btnSave" value="確認借用" class="btn btn-info" />
+        </div>
+    </div>
+</form>
+
+@*表單驗證*@
+<script>
+    $().ready(function () {
+        $('#form').validate({
+            errorClass: "error",
+            event: "blur", //換行才有動作
+            //rules: {
+            //    EmpName: {
+            //        required: true,
+            //        //maxlength: 2  //之後要修改成10
+            //    }
+            //},
+            //messages: {
+            //    EmpName: {
+            //        required: "请務必输入",
+            //        maxlength: "至少10位數"
+            //    }
+            //}
+        });
+    });
+</script>
+
+
+@*AJAX*@
+<script>
+    $(function () {
+
+        $('#btnSave').click(function () {
+            //不允許NULL
+
+            if ($('#form').valid()) {
+
+            }
+            else {
+                bootbox.alert('借用失敗');
+                return;
+            }
+
+            var empObj = {
+                EmpID: $('#EmpID').val(),  //JSON物件
+                EmpName: $('#EmpName').val(),
+                TimeLend: $('#TimeLend').val(),
+                CardID: $('#CardID').val(),
+                UseDay: $('#UseDay').val()
+            };
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify(empObj),
+                url: '@Url.Action("BorrowCreat")',
+                dataType: 'JSON',
+                contentType: "application/json",
+                success: function (r) {
+                    if (r == "Case01") {
+                        bootbox.alert('借用失敗，此員工已預約或者借用中');
+                    }
+                    else if (r == "Case02") {
+                        bootbox.alert('借用失敗，卡片借用中');
+                    }
+                    else if (r == "Case03") {
+                        bootbox.alert('借用失敗，卡片不屬於此員工部門，');
+                    }
+                    else {
+                        bootbox.alert('借用成功', function (result) {
+                            window.location.href = "/Borrow/Return";
+                        });
+                    }
+                },
+                error: function (response) {
+                    bootbox.alert(response.responseText);
+                }
+            });
+        });
+    });
+
+</script>
+
+@*輸入ID，按查詢帶出員工資訊*@
+<script>
+    $('#btnSearch').click(function () {
+        $.ajax({
+            type: 'POST',
+            data: { empsn: $('#empsn').val() },
+            url: '@Url.Action("BorrowCreat")',
+            dataType: 'JSON',
+            success: function (r) {
+                $('#EmpID').val(r.EmpID);
+                $('#EmpName').val(r.EmpName);
+            }
+        });
+    });
+</script>
+
+@*輸入empsn，連動欄位帶出員工資訊*@
+<script>
+    var hnd;
+    $('#empsn').keyup(function () {
+        //取消前一次預定的查詢
+        window.clearTimeout(hnd);
+        //延遲一秒後才查詢，若這一段內又輸入其他字元
+        //則此一預約執行會被上一行程式取消
+        var value = $(this).val();
+        hnd = window.setTimeout(function () {
+        $.ajax({
+            type: 'GET',
+            data: { empsn: $('#empsn').val() },
+            url: '@Url.Action("EmpSNsearch")',
+            dataType: 'JSON',
+            success: function (r) {
+                $('#EmpID').val(r.EmpID);
+                $('#EmpName').val(r.EmpName);
+            }
+        });
+        }, 1000);
+    });
+</script>
+
+
+                    
+                       

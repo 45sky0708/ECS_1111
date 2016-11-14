@@ -1,0 +1,116 @@
+﻿@model  List<ECS.Models.ECSViewModel>
+
+@*表單驗證*@
+<script src="~/Scripts/jquery.validate.js"></script>
+
+<script>
+  $( function() {
+      $("#TimeLend").datepicker({ dateFormat: 'yy/mm/dd' });
+  } );
+</script>
+<br />
+@*<h2>歸還確認</h2>*@
+@*<br />
+<br />*@
+
+@foreach (var item in Model)
+{
+    <form class="form-horizontal" id="form" role="form">
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">卡片別名</label>
+            <div class="col-sm-10">
+                <input type="text" id="CardName" name="CardName" class="form-control" value="@item.CardName" disabled="disabled">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">員工編號</label>
+            <div class="col-sm-10">
+                <input type="text" id="EmpID" name="EmpID" class="form-control" value="@item.EmpID" disabled="disabled">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">員工姓名</label>
+            <div class="col-sm-10">
+                <input type="text" id="EmpName" name="EmpName" class="form-control" value="@item.EmpName" disabled="disabled">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">員工部門</label>
+            <div class="col-sm-10">
+                <input type="text" id="EmpDept" name="EmpDept" class="form-control" value="@item.EmpDept" disabled="disabled">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">借出時間</label>
+            <div class="col-sm-10">
+                <input type="text" id="TimeLend" name="TimeLend" class="form-control" value="@item.TimeLendDataFormat" disabled="disabled">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">餘額</label>
+            <div class="col-sm-10">
+                <input type="text" id="CardAmount" name="CardAmount" class="form-control">
+            </div>
+        </div>       
+         @*紀錄編號欄位，隱藏不顯示*@
+        <input type="hidden" id="RecordNumber" name="RecordNumber" class="form-control" value="@item.RecordNumber">
+
+        @*按鈕*@
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" id="btnSave" value="確認歸還" class="btn btn-info" />
+            </div>
+        </div>
+    </form>
+}
+
+@*表單驗證*@
+<script>
+    $('#form').validate();
+</script>
+
+@*AJAX*@
+<script>
+    $(function () {
+
+        $('#btnSave').click(function () {
+            //不允許NULL
+
+            if ($('#form').valid()) {
+
+            }
+            else
+            {
+                bootbox.alert('歸還失敗');
+                return;
+            }
+
+            var empObj = {
+                CardName: $('#CardName').val(),  //JSON物件
+                EmpID: $('#EmpID').val(),
+                EmpName: $('#EmpName').val(),
+                TimeLend: $('#TimeLend').val(),
+                CardName: $('#CardName').val(),
+                CardAmount: $('#CardAmount').val(),
+                RecordNumber: $('#RecordNumber').val()
+            };
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify(empObj),
+                url: '@Url.Action("ReturnConfirm")',
+                dataType: 'JSON',
+                contentType: "application/json",
+                success: function (r) {
+                    bootbox.alert('歸還成功', function (result) {
+                        window.location.href = "/Borrow/Return";
+                    });
+                },
+                error: function (response) {
+                    bootbox.alert(response.responseText);
+                }
+            });
+        });
+    });
+
+</script>

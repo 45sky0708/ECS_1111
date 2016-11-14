@@ -1,0 +1,42 @@
+﻿@*@{
+        Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+    }*@
+
+@*@{
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }*@
+
+@*@{
+        Layout = "~/Views/Shared/_LayoutUser.cshtml";
+    }*@
+
+@*@{
+        string ControllerName = Convert.ToString(HttpContext.Current.Request.RequestContext.RouteData.Values["Controller"]);
+        switch (ControllerName.ToUpper())
+        {
+            case "Borrow":
+                Layout = "~/Views/Shared/_Layout.cshtml";
+                break;
+            default:
+                Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+                break;
+        }
+    }*@
+
+@{
+    var controller = HttpContext.Current.Request.RequestContext.RouteData.Values["Controller"].ToString();
+    string cLayout = "";
+    if (controller == "Borrow" || controller == "Card" || controller == "Emp" || controller == "Record")
+    {
+        cLayout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else if (controller == "User")
+    {
+        cLayout = "~/Views/Shared/_LayoutUser.cshtml";
+    }
+    else
+    {
+        cLayout = "~/Views/Shared/_LayoutLogin.cshtml";
+    }
+    Layout = cLayout;
+}

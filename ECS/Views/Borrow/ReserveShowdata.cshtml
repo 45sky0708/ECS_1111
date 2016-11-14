@@ -1,0 +1,84 @@
+﻿@model  ECS.Models.FormViewModel
+
+<div id="dialog-Confirm" title="Edit"></div>
+
+
+@if (Model.IsSuccess)
+{
+    <table class="table table-bordered table-hover">
+        <tr class="success">
+            <th>功能</th>
+            <th>紀錄編號</th>
+            <th>員工編號</th>
+            <th>員工卡號</th>
+            <th>員工部門</th>
+            <th>員工姓名</th>
+            <th>借出時間</th>
+            <th>借用天數</th>
+        </tr>
+        @foreach (var item in Model.ECSdata) //C#
+                {
+            <tr>
+                <td align="center">
+                    @Html.ActionLink("確認/修改", "ReserveConfirm", "Borrow", new { recordnumber = item.RecordNumber }, new { @class = "ConfirmDialog btn btn-warning" }) &nbsp
+                    @*<a href='@Url.Action("ReserveConfirm")?recordnumber=@item.RecordNumber' class="btn btn-warning">確認/修改</a>*@    @*按鈕動作*@
+                    @Html.ActionLink("取消", "BorrowCancel", "Borrow", new { recordnumber = @item.RecordNumber }, new { @class = "cancel btn btn-danger" })
+
+                </td>
+                <td>@item.RecordNumber</td>
+                <td>@item.EmpID</td>
+                <td>@item.EmpSN</td>
+                <td>@item.EmpDept </td>
+                <td>@item.EmpName</td>
+                <td>@item.TimeLendDataFormat</td>
+                <td>@item.UseDay 天</td>
+            </tr>
+        }
+
+    </table>
+}
+else
+{
+    <div class="alert alert-danger">@Model.Msg</div>
+}
+   
+
+<script>
+        $(document).ready(function () {
+
+            $(".cancel").on("click", function (e) {
+                var link = $(this).attr("href"); // "get" the intended link in a var
+                e.preventDefault();
+                bootbox.confirm("確定要取消?", function (result) {
+                    if (result) {
+                        location.href = link; // if result, "set" the document location
+                    }
+                });
+
+            });
+
+            $(".ConfirmDialog").on("click", function (e) {
+                var url = $(this).attr('href');
+                $("#dialog-Confirm").dialog({
+                    title: '預約資料確認',
+                    autoOpen: false,
+                    resizable: false,
+                    height: 450,
+                    width: 650,
+                    show: { effect: 'drop', direction: "up" },
+                    modal: true,
+                    draggable: true,
+                    open: function (event, ui) {
+                        $(this).load(url);
+
+                    },
+                    close: function (event, ui) {
+                        $(this).dialog('close');
+                    }
+                });
+
+                $("#dialog-Confirm").dialog('open');
+                return false;
+            });
+        });
+</script>

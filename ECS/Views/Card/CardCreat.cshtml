@@ -1,0 +1,133 @@
+﻿@model  ECS.Models.ECSEntities
+
+@*表單驗證*@
+<script src="~/Scripts/jquery.validate.js"></script>
+
+<br />
+@*<h2>新增卡片</h2>
+<br />
+<br />*@
+
+
+<form class="form-horizontal" id="form" role="form">
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">卡片編號</label>
+        <div class="col-sm-10">
+            <input type="text" id="CardID" name="CardID" class="form-control" required>
+        </div>
+    </div>
+@if (Session["SessionRole"] != null)
+{
+    string role = Session["SessionRole"].ToString();
+    string empdept = Session["SessionEmpDept"].ToString();
+    if (role == "Admin")
+    {
+        <div class="form-group">
+            <label class="col-sm-2 control-label">卡片部門</label>
+            <div class="col-sm-10">
+                <select type="button" id="CardDept" name="CardDept" class="form-control">
+                    <option value=""></option>
+                    <option value="數位資訊部">數位資訊部</option>
+                    <option value="投資資訊部">投資資訊部</option>
+                    <option value="壽險資訊部">壽險資訊部</option>
+                    <option value="資訊系統部">資訊系統部</option>
+                    <option value="資訊規劃部">資訊規劃部</option>
+                </select>
+            </div>
+        </div>
+    }
+    if (role == "Manage")
+    {
+        <div class="form-group">
+            <label class="col-sm-2 control-label">卡片部門</label>
+            <div class="col-sm-10">
+                <select type="button" id="CardDept" name="CardDept" class="form-control">
+                    <option value="@empdept" selected="selected">@empdept</option>
+                </select>
+            </div>
+        </div>
+    }
+}
+    
+    <div class="form-group">
+        <label class="col-sm-2 control-label">卡片別名</label>
+        <div class="col-sm-10">
+            <input type="text" id="CardName" name="CardName" class="form-control" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">卡片狀態</label>
+        <div class="col-sm-10">
+            <select type="button" id="CardState" name="CardState" class="form-control">
+                <option value=""></option>
+                <option value="已借用">已借用</option>
+                <option value="可使用">可使用</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">餘額</label>
+        <div class="col-sm-10">
+            <input type="text" id="CardAmount" name="CardAmount" class="form-control" required>
+        </div>
+    </div>
+    @*按鈕*@
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="button" id="btnSave" value="確認新增" class="btn btn-info" />
+        </div>
+    </div>
+</form>
+
+@*表單驗證*@
+<script>
+     $('#form').validate();
+</script>
+
+
+
+
+
+@*AJAX*@
+<script>
+    $(function () {
+
+        $('#btnSave').click(function () {
+            //不允許NULL
+
+            if ($('#form').valid()) {
+
+            }
+            else
+            {
+                bootbox.alert('新增失敗');
+                return;
+            }
+
+            var empObj = {
+                CardID: $('#CardID').val(),  //JSON物件
+                CardDept: $('#CardDept').val(),
+                CardName: $('#CardName').val(),
+                CardState: $('#CardState').val(),
+                CardAmount: $('#CardAmount').val()
+            };
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify(empObj),
+                url: '@Url.Action("CardCreat")',
+                dataType: 'JSON',
+                contentType: "application/json",
+                success: function (r) {
+                    bootbox.alert('新增成功', function (result) {
+                        window.location.href = "/Card/CardManage";
+                    });
+                },
+                error: function (response) {
+                    bootbox.alert(response.responseText);
+                }
+            });
+        });
+    });
+
+</script>

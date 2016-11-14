@@ -1,0 +1,128 @@
+﻿@model  ECS.Models.ECSEntities
+
+@*表單驗證*@
+<script src="~/Scripts/jquery.validate.js"></script>
+
+<br />
+@*<h2>儲值</h2>
+<br />
+<br />*@
+
+
+<form class="form-horizontal" id="form" role="form">
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">卡片編號</label>
+        <div class="col-sm-10">
+            <input type="text" id="CardID" name="CardID" class="form-control" required>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">卡片部門</label>
+        <div class="col-sm-10">
+            <input type="text" id="CardDept" name="CardDept" class="form-control" disabled="disabled">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">卡片別名</label>
+        <div class="col-sm-10">
+            <input type="text" id="CardName" name="CardName" class="form-control" disabled="disabled">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">餘額</label>
+        <div class="col-sm-10">
+            <input type="text" id="CardAmount" name="CardAmount" class="form-control" disabled="disabled">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">儲值金額</label>
+        <div class="col-sm-10">
+            <input type="text" id="TotalSpent" name="TotalSpent" class="form-control" required>
+        </div>
+    </div>
+
+    @*按鈕*@
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="button" id="btnSave" value="確認" class="btn btn-info" />
+        </div>
+    </div>
+</form>
+
+@*表單驗證*@
+<script>
+    $('#form').validate();
+</script>
+
+
+
+
+
+@*AJAX*@
+<script>
+    $(function () {
+
+        $('#btnSave').click(function () {
+            //不允許NULL
+
+            if ($('#form').valid()) {
+
+            }
+            else {
+                bootbox.alert('儲值失敗');
+                return;
+            }
+
+            var empObj = {
+                CardID: $('#CardID').val(),  //JSON物件
+                CardDept: $('#CardDept').val(),
+                CardName: $('#CardName').val(),
+                CardAmount: $('#CardAmount').val(),
+                TotalSpent: $('#TotalSpent').val()
+            };
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify(empObj),
+                url: '@Url.Action("CardGift")',
+                dataType: 'JSON',
+                contentType: "application/json",
+                success: function (r) {
+                    bootbox.alert('儲值成功', function (result) {
+                        window.location.href = "/Card/CardManage";
+                    });
+                },
+                error: function (response) {
+                    bootbox.alert(response.responseText);
+                }
+            });
+        });
+    });
+
+</script>
+
+@*輸入ID，連動欄位帶出卡片資訊*@
+<script>
+    var hnd;
+    $('#CardID').keyup(function () {
+        //取消前一次預定的查詢
+        window.clearTimeout(hnd);
+        //延遲一秒後才查詢，若這一段內又輸入其他字元
+        //則此一預約執行會被上一行程式取消
+        var value = $(this).val();
+        hnd = window.setTimeout(function () {
+        $.ajax({
+            type: 'GET',
+            data: { CardID: $('#CardID').val() },
+            url: '@Url.Action("CardIDsearch")',
+            dataType: 'JSON',
+            success: function (r) {
+                $('#CardDept').val(r.CardDept);
+                $('#CardName').val(r.CardName);
+                $('#CardAmount').val(r.CardAmount);
+            }
+        });
+        }, 1000);
+    });
+</script>

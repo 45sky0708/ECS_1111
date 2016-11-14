@@ -1,0 +1,67 @@
+﻿@model  ECS.Models.FormViewModel
+<br />
+<h2>預約管理</h2>
+<br />
+<br />
+
+
+<form method="post">
+    <div>
+        <label>員工卡號:</label>
+        <input type="text" id="empsn" name="empsn" class="form-inline" style="width:10%" autofocus />
+        <input type="button" id="btnSearch" value="查詢" class="btn btn-info" />
+    </div>
+    <br />
+    <div id="ReserveShowdata"></div>
+</form>
+
+<script>
+    $(function () {
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("ReserveShowdata")',
+            dataType: 'html',
+            success: function (r) {
+                $('#ReserveShowdata').html(r);
+            }
+        });
+
+
+        $('#btnSearch').click(function () {
+            $.ajax({
+                type: 'GET',
+                data: { empsn: $('#empsn').val() },
+                url: '@Url.Action("ReserveShowdata")',
+                dataType: 'html',
+                success: function (r) {
+                    $('#ReserveShowdata').html(r);
+                }
+            });
+        });
+
+    });
+</script>
+
+@*輸入empsn，連動欄位帶出員工資訊*@
+<script>
+    var hnd;
+    $('#empsn').keyup(function () {
+        //取消前一次預定的查詢
+        window.clearTimeout(hnd);
+        //延遲一秒後才查詢，若這一段內又輸入其他字元
+        //則此一預約執行會被上一行程式取消
+        var value = $(this).val();
+        hnd = window.setTimeout(function () {
+            $.ajax({
+                type: 'GET',
+                data: { empsn: $('#empsn').val() },
+                url: '@Url.Action("ReserveShowdata")',
+                dataType: 'HTML',
+                success: function (r) {
+                    $('#ReserveShowdata').html(r);
+                }
+            });
+        }, 1000);
+    });
+</script>
